@@ -84,7 +84,7 @@ const TabNavigator = () => {
         component={Notifications}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="bell-slash-o" size={size} color="color" />
+            <FontAwesome name="bell" size={size} color={color} />
           ),
         }}
       />
@@ -122,10 +122,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#DDDDDD",
-    padding: 10,
-  },
-  countContainer: {
-    alignItems: "center",
     padding: 10,
   },
 });
