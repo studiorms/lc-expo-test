@@ -1,10 +1,134 @@
+import { Entypo, EvilIcons } from "@expo/vector-icons";
 import React from "react";
-import { Text, View } from "react-native";
+import { Image, Platform, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "react-native-web";
 
 export default function Tweet() {
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Tweet Screen</Text>
+    <View style={styles.container}>
+      <View style={styles.profileContainer}>
+        <TouchableOpacity style={styles.flexRow}>
+          <Image
+            style={styles.avatar}
+            source={{
+              uri: "https://reactnative.dev/img/tiny_logo.png",
+            }}
+          />
+          <View>
+            <Text numberOfLines={1} style={styles.tweetName}>
+              Robert Smith
+            </Text>
+            <Text numberOfLines={1} style={styles.tweetHandle}>
+              @studiorms
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Entypo name="dots-three-vertical" size={24} color="gray" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.tweetContentContainer}>
+        <Text style={styles.tweetContent}>
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quidem
+          mollitia itaque tenetur. Numquam laborum tenetur nihil hic quasi
+          repellendus et quas eveniet nulla ipsum.
+        </Text>
+      </View>
+      <View style={styles.tweetEngagement}>
+        <View style={styles.flexRow}>
+          <Text style={styles.tweetEngagementNumber}>333</Text>
+          <Text style={styles.tweetEngagementLabel}>Retweets</Text>
+        </View>
+        <View style={[styles.flexRow, styles.ml4]}>
+          <Text style={styles.tweetEngagementNumber}>123</Text>
+          <Text style={styles.tweetEngagementLabel}>Quote Tweets</Text>
+        </View>
+        <View style={[styles.flexRow, styles.ml4]}>
+          <Text style={styles.tweetEngagementNumber}>456</Text>
+          <Text style={styles.tweetEngagementLabel}>Likes</Text>
+        </View>
+      </View>
+      <View style={[styles.tweetEngagement, styles.spaceAround]}>
+        <TouchableOpacity>
+          <EvilIcons name="comment" size={32} color="gray" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <EvilIcons name="retweet" size={32} color="gray" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <EvilIcons name="heart" size={32} color="gray" />
+        </TouchableOpacity>
+
+        <TouchableOpacity>
+          <EvilIcons
+            name={Platform.OS === "ios" ? "share-apple" : "share-google"}
+            size={22}
+            color="gray"
+            style={{ marginRight: 2 }}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  flexRow: {
+    flexDirection: "row",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  profileContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 12,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    marginRight: 8,
+    borderRadius: 25,
+  },
+  tweetName: {
+    fontWeight: "bold",
+    color: "#222",
+  },
+  tweetHandle: {
+    marginTop: 6,
+    color: "gray",
+  },
+  tweetContentContainer: {
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+    borderBottomColor: "#e5e7eb",
+    borderBottomWidth: 1,
+    marginTop: 4,
+  },
+  tweetContent: {
+    fontSize: 20,
+    lineHeight: 30,
+  },
+  tweetEngagement: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    borderBottomColor: "#e5e7eb",
+    borderBottomWidth: 1,
+  },
+  tweetEngagementNumber: {
+    fontWeight: "bold",
+  },
+  tweetEngagementLabel: {
+    color: "gray",
+    marginLeft: 6,
+  },
+  ml4: {
+    marginLeft: 16,
+  },
+  spaceAround: {
+    justifyContent: "space-around",
+  },
+});
