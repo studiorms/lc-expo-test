@@ -1,7 +1,13 @@
 import { Entypo, EvilIcons } from "@expo/vector-icons";
 import React from "react";
-import { Image, Platform, StyleSheet, Text, View } from "react-native";
-import { TouchableOpacity } from "react-native-web";
+import {
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function Tweet() {
   return (

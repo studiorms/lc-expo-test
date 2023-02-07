@@ -4,7 +4,6 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
-import { StyleSheet } from "react-native";
 import "react-native-gesture-handler";
 import Home from "./screens/Home";
 import NewTweet from "./screens/NewTweet";
@@ -109,19 +108,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    //flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    marginTop: 60,
-    //justifyContent: 'center',
-  },
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#DDDDDD",
-    padding: 10,
-  },
-});

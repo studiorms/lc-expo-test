@@ -6,9 +6,9 @@ import {
   Platform,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { TouchableOpacity } from "react-native-web";
 
 export default function Home({ navigation }) {
   const DATA = [
