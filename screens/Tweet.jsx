@@ -9,11 +9,14 @@ import {
   View,
 } from "react-native";
 
-export default function Tweet() {
+export default function Tweet({ navigation }) {
+  function gotoProfile() {
+    navigation.navigate("Profile");
+  }
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <TouchableOpacity style={styles.flexRow}>
+        <TouchableOpacity style={styles.flexRow} onPress={gotoProfile}>
           <Image
             style={styles.avatar}
             source={{
