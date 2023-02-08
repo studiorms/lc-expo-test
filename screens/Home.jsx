@@ -1,5 +1,7 @@
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
-import React from "react";
+import axios from "axios";
+import { formatDistanceToNowStrict } from "date-fns";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -11,20 +13,20 @@ import {
 } from "react-native";
 
 export default function Home({ navigation }) {
-  const DATA = [
-    {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-      title: "First Item",
-    },
-    {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-      title: "Second Item",
-    },
-    {
-      id: "58694a0f-3da1-471f-bd96-145571e29d72",
-      title: "Third Item",
-    },
-  ];
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    getAllTweets();
+  }, []);
+
+  function getAllTweets() {
+    axios
+      .get("http://localhost/api/tweets")
+      .then((response) => setData(response.data))
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   function gotoProfile() {
     navigation.navigate("Profile");
@@ -38,38 +40,34 @@ export default function Home({ navigation }) {
     navigation.navigate("New Tweet");
   }
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item: tweet }) => (
     <View style={styles.tweetContainer}>
       <TouchableOpacity onPress={gotoProfile}>
         <Image
           style={styles.avatar}
           source={{
-            uri: "https://reactnative.dev/img/tiny_logo.png",
+            uri: tweet.user.avatar,
           }}
         />
       </TouchableOpacity>
       <View style={{ flex: 1 }}>
         <TouchableOpacity style={styles.flexRow} onPress={gotoTweet}>
           <Text numberOfLines={1} style={styles.tweetName}>
-            {item.title}
+            {tweet.user.name}
           </Text>
           <Text numberOfLines={1} style={styles.tweetHandle}>
-            @studiorms
+            @{tweet.user.username}
           </Text>
           <Text>&middot;</Text>
           <Text numberOfLines={1} style={styles.tweetHandle}>
-            9m
+            {formatDistanceToNowStrict(new Date(tweet.created_at))}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.tweetContentContainer}
           onPress={gotoTweet}
         >
-          <Text style={styles.tweetContent}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum earum
-            quod laboriosam veritatis iusto ullam optio perspiciatis magni quasi
-            numquam?
-          </Text>
+          <Text style={styles.tweetContent}>{tweet.body}</Text>
         </TouchableOpacity>
         <View style={styles.tweetEngagement}>
           <TouchableOpacity style={[styles.flexRow, { alignItems: "center" }]}>
@@ -121,7 +119,7 @@ export default function Home({ navigation }) {
   return (
     <View style={styles.container}>
       <FlatList
-        data={DATA}
+        data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         ItemSeparatorComponent={() => <View style={styles.tweetSeperator} />}
