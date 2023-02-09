@@ -3,6 +3,7 @@ import axios from "axios";
 import { formatDistanceToNowStrict } from "date-fns";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   Platform,
@@ -14,6 +15,8 @@ import {
 
 export default function Home({ navigation }) {
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     getAllTweets();
@@ -22,10 +25,21 @@ export default function Home({ navigation }) {
   function getAllTweets() {
     axios
       .get("http://localhost/api/tweets")
-      .then((response) => setData(response.data))
+      .then((response) => {
+        setData(response.data);
+        setIsLoading(false);
+        setIsRefreshing(false);
+      })
       .catch((error) => {
         console.error(error);
+        setIsLoading(false);
+        setIsRefreshing(false);
       });
+  }
+
+  function handleRefresh() {
+    setIsRefreshing(true);
+    getAllTweets();
   }
 
   function gotoProfile() {
@@ -118,12 +132,18 @@ export default function Home({ navigation }) {
   );
   return (
     <View style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={() => <View style={styles.tweetSeperator} />}
-      />
+      {isLoading ? (
+        <ActivityIndicator style={{ marginTop: 8 }} size="large" color="gray" />
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={() => <View style={styles.tweetSeperator} />}
+          refreshing={isRefreshing}
+          onRefresh={handleRefresh}
+        />
+      )}
       <TouchableOpacity style={styles.floatingButton} onPress={gotoNewTweet}>
         <AntDesign name="plus" size={26} color="white" />
       </TouchableOpacity>
