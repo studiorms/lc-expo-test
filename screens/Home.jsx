@@ -17,16 +17,29 @@ export default function Home({ navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [isScrollEnd, setIsScrollEnd] = useState(false);
+
+  const baseUrl = "http://192.168.1.120";
 
   useEffect(() => {
     getAllTweets();
-  }, []);
+  }, [page]);
 
   function getAllTweets() {
     axios
-      .get("http://localhost/api/tweets")
+      .get(baseUrl + "/api/tweets?page=" + page)
       .then((response) => {
-        setData(response.data);
+        if (page === 1) {
+          setData(response.data.data);
+        } else {
+          setData([...data, ...response.data.data]);
+        }
+
+        if (!response.data.next_page_url) {
+          setIsScrollEnd(true);
+        }
+
         setIsLoading(false);
         setIsRefreshing(false);
       })
@@ -38,8 +51,17 @@ export default function Home({ navigation }) {
   }
 
   function handleRefresh() {
+    setPage(1);
+    setIsScrollEnd(false);
+
     setIsRefreshing(true);
     getAllTweets();
+  }
+
+  function handleEnd() {
+    if (!isScrollEnd) {
+      setPage(page + 1);
+    }
   }
 
   function gotoProfile() {
@@ -142,6 +164,11 @@ export default function Home({ navigation }) {
           ItemSeparatorComponent={() => <View style={styles.tweetSeperator} />}
           refreshing={isRefreshing}
           onRefresh={handleRefresh}
+          onEndReached={handleEnd}
+          onEndReachedThreshold={0}
+          ListFooterComponent={() =>
+            !isScrollEnd && <ActivityIndicator size="large" color="gray" />
+          }
         />
       )}
       <TouchableOpacity style={styles.floatingButton} onPress={gotoNewTweet}>
