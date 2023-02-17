@@ -1,5 +1,4 @@
 import { AntDesign, EvilIcons } from "@expo/vector-icons";
-import axios from "axios";
 import { formatDistanceToNowStrict } from "date-fns";
 import React, { useEffect, useState } from "react";
 import {
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import axiosConfig from "../helpers/axiosConfig";
 
 export default function Home({ navigation }) {
   const [data, setData] = useState([]);
@@ -20,15 +20,13 @@ export default function Home({ navigation }) {
   const [page, setPage] = useState(1);
   const [isScrollEnd, setIsScrollEnd] = useState(false);
 
-  const baseUrl = "http://192.168.1.120";
-
   useEffect(() => {
     getAllTweets();
   }, [page]);
 
   function getAllTweets() {
-    axios
-      .get(baseUrl + "/api/tweets?page=" + page)
+    axiosConfig
+      .get(`/tweets?page=${page}`)
       .then((response) => {
         if (page === 1) {
           setData(response.data.data);
@@ -68,8 +66,8 @@ export default function Home({ navigation }) {
     navigation.navigate("Profile");
   }
 
-  function gotoTweet() {
-    navigation.navigate("Tweet");
+  function gotoTweet(tweetId) {
+    navigation.navigate("Tweet", { tweetId });
   }
 
   function gotoNewTweet() {
@@ -87,7 +85,10 @@ export default function Home({ navigation }) {
         />
       </TouchableOpacity>
       <View style={{ flex: 1 }}>
-        <TouchableOpacity style={styles.flexRow} onPress={gotoTweet}>
+        <TouchableOpacity
+          style={styles.flexRow}
+          onPress={() => gotoTweet(tweet.id)}
+        >
           <Text numberOfLines={1} style={styles.tweetName}>
             {tweet.user.name}
           </Text>
@@ -101,7 +102,7 @@ export default function Home({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.tweetContentContainer}
-          onPress={gotoTweet}
+          onPress={() => gotoTweet(tweet.id)}
         >
           <Text style={styles.tweetContent}>{tweet.body}</Text>
         </TouchableOpacity>
