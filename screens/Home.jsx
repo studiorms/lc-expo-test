@@ -90,8 +90,8 @@ export default function Home({ route, navigation }) {
     }
   }
 
-  function gotoProfile() {
-    navigation.navigate("Profile");
+  function gotoProfile(userId) {
+    navigation.navigate("Profile", { userId });
   }
 
   function gotoTweet(tweetId) {
@@ -104,7 +104,7 @@ export default function Home({ route, navigation }) {
 
   const renderItem = ({ item: tweet }) => (
     <View style={styles.tweetContainer}>
-      <TouchableOpacity onPress={gotoProfile}>
+      <TouchableOpacity onPress={() => gotoProfile(tweet.user.id)}>
         <Image
           style={styles.avatar}
           source={{

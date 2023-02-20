@@ -33,8 +33,8 @@ export default function Tweet({ route, navigation }) {
       });
   }
 
-  function gotoProfile() {
-    navigation.navigate("Profile");
+  function gotoProfile(userId) {
+    navigation.navigate("Profile", { userId });
   }
 
   return (
@@ -44,7 +44,10 @@ export default function Tweet({ route, navigation }) {
       ) : (
         <>
           <View style={styles.profileContainer}>
-            <TouchableOpacity style={styles.flexRow} onPress={gotoProfile}>
+            <TouchableOpacity
+              style={styles.flexRow}
+              onPress={() => gotoProfile(tweet.user.id)}
+            >
               <Image
                 style={styles.avatar}
                 source={{

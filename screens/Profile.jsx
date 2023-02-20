@@ -1,6 +1,7 @@
 import { EvilIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   Linking,
@@ -10,139 +11,164 @@ import {
   View,
 } from "react-native";
 
-const renderItem = ({ item }) => (
-  <View style={{ marginVertical: 20 }}>
-    <Text>{item.title}</Text>
-  </View>
-);
+import { format } from "date-fns";
+import axiosConfig from "../helpers/axiosConfig";
 
-const ProfileHeader = () => (
-  <View style={styles.container}>
-    <Image
-      style={styles.backgroundImage}
-      source={{
-        uri: "https://images.unsplash.com/photo-1674920677763-0488c7c75a98?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=686&q=80",
-      }}
-    />
-    <View style={styles.avatarContainer}>
-      <Image
-        style={styles.avatar}
-        source={{
-          uri: "https://reactnative.dev/img/tiny_logo.png",
-        }}
-      />
-      <TouchableOpacity style={styles.followButton}>
-        <Text style={styles.followButtonText}>Follow</Text>
-      </TouchableOpacity>
-    </View>
-    <View style={styles.nameContainer}>
-      <Text style={styles.profileName}>Robert Smith</Text>
-      <Text style={styles.profileHandle}>@studiorms</Text>
-    </View>
-    <View style={styles.profileContainer}>
-      <Text style={styles.profileContainerText}>Best of the best</Text>
-    </View>
+export default function ProfileScreen({ route, navigation }) {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-    <View style={styles.locationContainer}>
-      <EvilIcons name="location" size={24} color="gray" />
-      <Text style={styles.textGray}>Washington State</Text>
-    </View>
+  useEffect(() => {
+    getUserProfile();
+  }, []);
 
-    <View style={styles.linkContainer}>
-      <TouchableOpacity
-        style={styles.linkItem}
-        onPress={() => Linking.openURL("https://www.studiorms.com")}
-      >
-        <EvilIcons name="link" size={24} color="gray" />
-        <Text style={styles.linkColor}>studiorms.com</Text>
-      </TouchableOpacity>
-      <View style={[styles.linkItem, styles.ml4]}>
-        <EvilIcons name="calendar" size={24} color="gray" />
-        <Text style={styles.textGray}>Joined March 2009</Text>
-      </View>
-    </View>
-    <View style={styles.followContainer}>
-      <View style={styles.followItem}>
-        <Text style={styles.followItemNumber}>509</Text>
-        <Text style={styles.followItemLabel}>Following</Text>
-      </View>
-      <View style={styles.followItem}>
-        <Text style={styles.followItemNumber}>2,345</Text>
-        <Text style={styles.followItemLabel}>Follower</Text>
-      </View>
-    </View>
-    <View style={styles.separator} />
-  </View>
-);
+  function getUserProfile() {
+    axiosConfig
+      .get(`/users/${route.params.userId}`)
+      .then((response) => {
+        setUser(response.data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsLoading(false);
+        setIsRefreshing(false);
+      });
+  }
 
-export default function Profile() {
   const DATA = [
     {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
+      id: "1",
       title: "First Item",
     },
     {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
+      id: "2",
       title: "Second Item",
     },
     {
-      id: "58694a0f-3da1-471f-bd96-145571e29d72",
+      id: "3",
       title: "Third Item",
     },
     {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28b1",
-      title: "First Item",
+      id: "4",
+      title: "Fourth Item",
     },
     {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f62",
-      title: "Second Item",
+      id: "5",
+      title: "Fifth Item",
     },
     {
-      id: "58694a0f-3da1-471f-bd96-145571e29d73",
-      title: "Third Item",
+      id: "6",
+      title: "Sixth Item",
     },
     {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28b4",
-      title: "First Item",
+      id: "7",
+      title: "Seventh Item",
     },
     {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f65",
-      title: "Second Item",
+      id: "8",
+      title: "Eight Item",
     },
     {
-      id: "58694a0f-3da1-471f-bd96-145571e29d76",
-      title: "Third Item",
+      id: "9",
+      title: "Ninth Item",
     },
     {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28b7",
-      title: "First Item",
-    },
-    {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f68",
-      title: "Second Item",
-    },
-    {
-      id: "58694a0f-3da1-471f-bd96-145571e29d79",
-      title: "Third Item",
+      id: "10",
+      title: "Tenth Item",
     },
   ];
+
+  const renderItem = ({ item }) => (
+    <View style={{ marginVertical: 20 }}>
+      <Text>{item.title}</Text>
+    </View>
+  );
+
+  const ProfileHeader = () => (
+    <View style={styles.container}>
+      {isLoading ? (
+        <ActivityIndicator style={{ marginTop: 8 }} size="large" color="gray" />
+      ) : (
+        <>
+          <Image
+            style={styles.backgroundImage}
+            source={{
+              uri: "https://images.unsplash.com/photo-1557683316-973673baf926?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1080&q=80",
+            }}
+          />
+          <View style={styles.avatarContainer}>
+            <Image
+              style={styles.avatar}
+              source={{
+                uri: user.avatar,
+              }}
+            />
+            <TouchableOpacity style={styles.followButton}>
+              <Text style={styles.followButtonText}>Follow</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.nameContainer}>
+            <Text style={styles.profileName}>{user.name}</Text>
+            <Text style={styles.profileHandle}>@{user.username}</Text>
+          </View>
+
+          <View style={styles.profileContainer}>
+            <Text style={styles.profileContainerText}>{user.profile}</Text>
+          </View>
+
+          <View style={styles.locationContainer}>
+            <EvilIcons name="location" size={24} color="gray" />
+            <Text style={styles.textGray}>{user.location}</Text>
+          </View>
+
+          <View style={styles.linkContainer}>
+            <TouchableOpacity
+              style={styles.linkItem}
+              onPress={() => Linking.openURL(user.link)}
+            >
+              <EvilIcons name="link" size={24} color="gray" />
+              <Text style={styles.linkColor}>{user.linkText}</Text>
+            </TouchableOpacity>
+            <View style={[styles.linkItem, styles.ml4]}>
+              <EvilIcons name="calendar" size={24} color="gray" />
+              <Text style={styles.textGray}>
+                Joined {format(new Date(user.created_at), "MMM yyyy")}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.followContainer}>
+            <View style={styles.followItem}>
+              <Text style={styles.followItemNumber}>509</Text>
+              <Text style={styles.followItemLabel}>Following</Text>
+            </View>
+            <View style={[styles.followItem, styles.ml4]}>
+              <Text style={styles.followItemNumber}>2,354</Text>
+              <Text style={styles.followItemLabel}>Followers</Text>
+            </View>
+          </View>
+
+          <View style={styles.separator}></View>
+        </>
+      )}
+    </View>
+  );
+
   return (
     <FlatList
       style={styles.container}
       data={DATA}
       renderItem={renderItem}
       keyExtractor={(item) => item.id}
-      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      ItemSeparatorComponent={() => <View style={styles.separator}></View>}
       ListHeaderComponent={ProfileHeader}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    width: 800,
-    height: 120,
-  },
   textGray: {
     color: "gray",
   },
@@ -152,6 +178,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+  },
+  backgroundImage: {
+    width: 800,
+    height: 120,
   },
   avatarContainer: {
     flexDirection: "row",
@@ -181,24 +211,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 2,
   },
-  profileHandle: {
-    color: "gray",
-    marginTop: 1,
-  },
   profileName: {
     fontWeight: "bold",
     fontSize: 22,
   },
+  profileHandle: {
+    color: "gray",
+    marginTop: 1,
+  },
   profileContainer: {
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    marginTop: 8,
   },
   profileContainerText: {
     lineHeight: 22,
   },
   locationContainer: {
     flexDirection: "row",
-    alignItems: "center",
     paddingHorizontal: 10,
     marginTop: 12,
   },
@@ -212,7 +241,6 @@ const styles = StyleSheet.create({
   },
   linkItem: {
     flexDirection: "row",
-    alignItems: "center",
   },
   followContainer: {
     flexDirection: "row",
@@ -221,7 +249,6 @@ const styles = StyleSheet.create({
   },
   followItem: {
     flexDirection: "row",
-    marginRight: 12,
   },
   followItemNumber: {
     fontWeight: "bold",
@@ -231,6 +258,6 @@ const styles = StyleSheet.create({
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: "#E5E7EB",
   },
 });
