@@ -1,30 +1,31 @@
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import * as SecureStore from "expo-secure-store";
 import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import "react-native-gesture-handler";
 import { AuthContext } from "./context/AuthProvider";
-import Login from "./screens/Auth/Login";
-import Register from "./screens/Auth/Register";
-import Home from "./screens/Home";
+import LoginScreen from "./screens/Auth/LoginScreen";
+import RegisterScreen from "./screens/Auth/RegisterScreen";
+import HomeScreen from "./screens/HomeScreen";
 import NewTweet from "./screens/NewTweet";
-import Notifications from "./screens/Notifications";
-import Profile from "./screens/Profile";
-import Search from "./screens/Search";
-import Settings from "./screens/Settings";
-import Tweet from "./screens/Tweet";
+import NotificationsScreen from "./screens/NotificationsScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import SearchScreen from "./screens/SearchScreen";
+import SettingsScreen from "./screens/SettingsScreen";
+import TweetScreen from "./screens/TweetScreen";
 
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
+
 const HomeStackNavigator = () => {
   return (
     <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-        headerBackTitleVisible: false,
-      }}
+      screenOptions={{ headerShown: true, headerBackTitleVisible: false }}
     >
       <Stack.Screen
         name="Tab"
@@ -34,23 +35,17 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="New Tweet"
         component={NewTweet}
-        options={{
-          title: "",
-        }}
+        options={{ title: "" }}
       />
       <Stack.Screen
-        name="Tweet"
-        component={Tweet}
-        options={{
-          title: "",
-        }}
+        name="Tweet Screen"
+        component={TweetScreen}
+        options={{ title: "" }}
       />
       <Stack.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          title: "",
-        }}
+        name="Profile Screen"
+        component={ProfileScreen}
+        options={{ title: "" }}
       />
     </Stack.Navigator>
   );
@@ -63,19 +58,18 @@ const AuthStackNavigator = () => {
     >
       <Stack.Screen
         name="Login Screen"
-        component={Login}
+        component={LoginScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Register Screen"
-        component={Register}
+        component={RegisterScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
 };
 
-const Tab = createBottomTabNavigator();
 const TabNavigator = () => {
   return (
     <Tab.Navigator
@@ -86,7 +80,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen
         name="Home1"
-        component={Home}
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
@@ -95,7 +89,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Search"
-        component={Search}
+        component={SearchScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" size={size} color={color} />
@@ -104,10 +98,10 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Notifications"
-        component={Notifications}
+        component={NotificationsScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="bell" size={size} color={color} />
+            <Ionicons name="notifications" size={size} color={color} />
           ),
         }}
       />
@@ -115,19 +109,25 @@ const TabNavigator = () => {
   );
 };
 
-const Drawer = createDrawerNavigator();
-
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
-    // check if user is logged in
-    // check secure store for token
+    // check if user is logged in or not.
+    // Check SecureStore for the user object/token
 
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    SecureStore.getItemAsync("user")
+      .then((userString) => {
+        if (userString) {
+          setUser(JSON.parse(userString));
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
   }, []);
 
   if (isLoading) {
@@ -144,12 +144,10 @@ export default function App() {
         <NavigationContainer>
           <Drawer.Navigator
             initialRouteName="Home"
-            screenOptions={{
-              headerShown: true,
-            }}
+            screenOptions={{ headerShown: true }}
           >
             <Drawer.Screen name="Home" component={HomeStackNavigator} />
-            <Drawer.Screen name="Settings" component={Settings} />
+            <Drawer.Screen name="Settings" component={SettingsScreen} />
           </Drawer.Navigator>
         </NavigationContainer>
       ) : (
