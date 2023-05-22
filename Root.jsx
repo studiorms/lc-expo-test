@@ -8,15 +8,15 @@ import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import "react-native-gesture-handler";
 import { AuthContext } from "./context/AuthProvider";
-import LoginScreen from "./screens/Auth/LoginScreen";
-import RegisterScreen from "./screens/Auth/RegisterScreen";
-import HomeScreen from "./screens/HomeScreen";
+import Login from "./screens/Auth/Login";
+import Register from "./screens/Auth/Register";
+import Home from "./screens/Home";
 import NewTweet from "./screens/NewTweet";
-import NotificationsScreen from "./screens/NotificationsScreen";
-import ProfileScreen from "./screens/ProfileScreen";
-import SearchScreen from "./screens/SearchScreen";
-import SettingsScreen from "./screens/SettingsScreen";
-import TweetScreen from "./screens/TweetScreen";
+import Notifications from "./screens/Notifications";
+import Profile from "./screens/Profile";
+import Search from "./screens/Search";
+import Settings from "./screens/Settings";
+import Tweet from "./screens/Tweet";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -39,12 +39,12 @@ const HomeStackNavigator = () => {
       />
       <Stack.Screen
         name="Tweet Screen"
-        component={TweetScreen}
+        component={Tweet}
         options={{ title: "" }}
       />
       <Stack.Screen
         name="Profile Screen"
-        component={ProfileScreen}
+        component={Profile}
         options={{ title: "" }}
       />
     </Stack.Navigator>
@@ -58,12 +58,12 @@ const AuthStackNavigator = () => {
     >
       <Stack.Screen
         name="Login Screen"
-        component={LoginScreen}
+        component={Login}
         options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Register Screen"
-        component={RegisterScreen}
+        component={Register}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -80,7 +80,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen
         name="Home1"
-        component={HomeScreen}
+        component={Home}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
@@ -89,7 +89,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Search"
-        component={SearchScreen}
+        component={Search}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" size={size} color={color} />
@@ -98,7 +98,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Notifications"
-        component={NotificationsScreen}
+        component={Notifications}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="notifications" size={size} color={color} />
@@ -147,7 +147,7 @@ export default function App() {
             screenOptions={{ headerShown: true }}
           >
             <Drawer.Screen name="Home" component={HomeStackNavigator} />
-            <Drawer.Screen name="Settings" component={SettingsScreen} />
+            <Drawer.Screen name="Settings" component={Settings} />
           </Drawer.Navigator>
         </NavigationContainer>
       ) : (
