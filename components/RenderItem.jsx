@@ -15,11 +15,11 @@ export default function RenderItem({ item: tweet }) {
   const navigation = useNavigation();
 
   function gotoProfile(userId) {
-    navigation.navigate("Profile", { userId });
+    navigation.navigate("Profile Screen", { userId });
   }
 
   function gotoTweet(tweetId) {
-    navigation.navigate("Tweet", { tweetId });
+    navigation.navigate("Tweet Screen", { tweetId });
   }
 
   return (

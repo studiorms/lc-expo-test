@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
@@ -118,6 +119,18 @@ export default function App() {
     // Check SecureStore for the user object/token
 
     SecureStore.getItemAsync("user")
+      .then((userString) => {
+        if (userString) {
+          setUser(JSON.parse(userString));
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsLoading(false);
+      });
+
+    AsyncStorage.getItem("user")
       .then((userString) => {
         if (userString) {
           setUser(JSON.parse(userString));

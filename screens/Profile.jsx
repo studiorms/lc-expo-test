@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import RenderItem from "../components/RenderItem";
 import axiosConfig from "../helpers/axiosConfig";
 
-export default function ProfileScreen({ route, navigation }) {
+export default function Profile({ route, navigation }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTweets, setIsLoadingTweets] = useState(true);
@@ -173,7 +173,6 @@ export default function ProfileScreen({ route, navigation }) {
           scrollIndicatorInsets={{ right: 1 }}
         />
       )}
-      ;
     </View>
   );
 }

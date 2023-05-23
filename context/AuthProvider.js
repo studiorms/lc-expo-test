@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import React, { createContext, useState } from "react";
 import axiosConfig from "../helpers/axiosConfig";
@@ -36,7 +37,12 @@ export const AuthProvider = ({ children }) => {
 
               setUser(userResponse);
               setError(null);
-              SecureStore.setItemAsync("user", JSON.stringify(userResponse));
+              try {
+                SecureStore.setItemAsync("user", JSON.stringify(userResponse));
+              } catch (error) {
+                AsyncStorage.setItem("user", JSON.stringify(userResponse));
+              }
+
               setIsLoading(false);
             })
             .catch((error) => {
