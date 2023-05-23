@@ -6,7 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as SecureStore from "expo-secure-store";
 import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import "react-native-gesture-handler";
 import { AuthContext } from "./context/AuthProvider";
 import Login from "./screens/Auth/Login";
@@ -118,29 +118,31 @@ export default function App() {
     // check if user is logged in or not.
     // Check SecureStore for the user object/token
 
-    SecureStore.getItemAsync("user")
-      .then((userString) => {
-        if (userString) {
-          setUser(JSON.parse(userString));
-        }
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsLoading(false);
-      });
-
-    AsyncStorage.getItem("user")
-      .then((userString) => {
-        if (userString) {
-          setUser(JSON.parse(userString));
-        }
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsLoading(false);
-      });
+    if (Platform.OS !== "web") {
+      SecureStore.getItemAsync("user")
+        .then((userString) => {
+          if (userString) {
+            setUser(JSON.parse(userString));
+          }
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setIsLoading(false);
+        });
+    } else {
+      AsyncStorage.getItem("user")
+        .then((userString) => {
+          if (userString) {
+            setUser(JSON.parse(userString));
+          }
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setIsLoading(false);
+        });
+    }
   }, []);
 
   if (isLoading) {

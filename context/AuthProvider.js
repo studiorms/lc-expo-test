@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import React, { createContext, useState } from "react";
+import { Platform } from "react-native";
 import axiosConfig from "../helpers/axiosConfig";
 
 export const AuthContext = createContext();
@@ -37,9 +38,9 @@ export const AuthProvider = ({ children }) => {
 
               setUser(userResponse);
               setError(null);
-              try {
+              if (Platform.OS !== "web") {
                 SecureStore.setItemAsync("user", JSON.stringify(userResponse));
-              } catch (error) {
+              } else {
                 AsyncStorage.setItem("user", JSON.stringify(userResponse));
               }
 
@@ -60,14 +61,21 @@ export const AuthProvider = ({ children }) => {
             .post("/logout")
             .then((response) => {
               setUser(null);
-              SecureStore.deleteItemAsync("user");
-              setError(null);
+              if (Platform.OS !== "web") {
+                SecureStore.deleteItemAsync("user");
+              } else {
+                AsyncStorage.removeItem("user");
+              }
               setIsLoading(false);
             })
             .catch((error) => {
               console.log(error);
               setUser(null);
-              SecureStore.deleteItemAsync("user");
+              if (Platform.OS !== "web") {
+                SecureStore.deleteItemAsync("user");
+              } else {
+                AsyncStorage.removeItem("user");
+              }
               setError(error.response.data.message);
               setIsLoading(false);
             });
