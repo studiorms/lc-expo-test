@@ -1,5 +1,5 @@
 import { AntDesign } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import RenderItem from "../components/RenderItem";
+import { AuthContext } from "../context/AuthProvider";
 import axiosConfig from "../helpers/axiosConfig";
 
 export default function Home({ route, navigation }) {
@@ -17,6 +18,7 @@ export default function Home({ route, navigation }) {
   const [page, setPage] = useState(1);
   const [isScrollEnd, setIsScrollEnd] = useState(false);
   const flatListRef = useRef();
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     getAllTweets();
@@ -36,6 +38,10 @@ export default function Home({ route, navigation }) {
     setIsScrollEnd(false);
     setIsRefreshing(false);
 
+    axiosConfig.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${user.token}`;
+
     axiosConfig
       .get(`/tweets`)
       .then((response) => {
@@ -50,6 +56,10 @@ export default function Home({ route, navigation }) {
       });
   }
   function getAllTweets() {
+    axiosConfig.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${user.token}`;
+
     axiosConfig
       .get(`/tweets?page=${page}`)
       .then((response) => {
