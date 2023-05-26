@@ -1,7 +1,8 @@
 import { EvilIcons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Linking,
@@ -13,21 +14,75 @@ import {
 
 import { format } from "date-fns";
 import RenderItem from "../components/RenderItem";
+import { AuthContext } from "../context/AuthProvider";
 import axiosConfig from "../helpers/axiosConfig";
 
 export default function Profile({ route, navigation }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingTweets, setIsLoadingTweets] = useState(true);
   const [data, setData] = useState([]);
+  const [isLoadingTweets, setIsLoadingTweets] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [page, setPage] = useState(1);
-  const [isScrollEnd, setIsScrollEnd] = useState(false);
+  const [isAtEndOfScrolling, setIsAtEndOfScrolling] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const { user: userFromContext } = useContext(AuthContext);
 
   useEffect(() => {
     getUserProfile();
     getUserTweets();
   }, [page]);
+
+  useEffect(() => {
+    getIsFollowing();
+  }, []);
+
+  function getIsFollowing() {
+    axiosConfig.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${userFromContext.token}`;
+
+    axiosConfig
+      .get(`/is_following/${route.params.userId}`)
+      .then((response) => {
+        setIsFollowing(response.data);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+  }
+
+  function followUser(userId) {
+    axiosConfig.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${userFromContext.token}`;
+
+    axiosConfig
+      .post(`/follow/${route.params.userId}`)
+      .then((response) => {
+        setIsFollowing(true);
+        Alert.alert("You are now following this user.");
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+  }
+
+  function unfollowUser(userId) {
+    axiosConfig.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${userFromContext.token}`;
+
+    axiosConfig
+      .post(`/unfollow/${route.params.userId}`)
+      .then((response) => {
+        setIsFollowing(false);
+        Alert.alert("You are now unfollowing this user.");
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+  }
 
   function getUserProfile() {
     axiosConfig
@@ -54,14 +109,14 @@ export default function Profile({ route, navigation }) {
         }
 
         if (!response.data.next_page_url) {
-          setIsScrollEnd(true);
+          setIsAtEndOfScrolling(true);
         }
 
         setIsLoadingTweets(false);
         setIsRefreshing(false);
       })
       .catch((error) => {
-        console.error(error);
+        console.log(error);
         setIsLoadingTweets(false);
         setIsRefreshing(false);
       });
@@ -69,16 +124,13 @@ export default function Profile({ route, navigation }) {
 
   function handleRefresh() {
     setPage(1);
-    setIsScrollEnd(false);
-
+    setIsAtEndOfScrolling(false);
     setIsRefreshing(true);
     getUserTweets();
   }
 
   function handleEnd() {
-    if (!isScrollEnd) {
-      setPage(page + 1);
-    }
+    setPage(page + 1);
   }
 
   const ProfileHeader = () => (
@@ -100,9 +152,26 @@ export default function Profile({ route, navigation }) {
                 uri: user.avatar,
               }}
             />
-            <TouchableOpacity style={styles.followButton}>
-              <Text style={styles.followButtonText}>Follow</Text>
-            </TouchableOpacity>
+
+            {userFromContext.id !== route.params.userId && (
+              <View>
+                {isFollowing ? (
+                  <TouchableOpacity
+                    style={styles.followButton}
+                    onPress={() => unfollowUser(route.params.userId)}
+                  >
+                    <Text style={styles.followButtonText}>Unfollow</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.followButton}
+                    onPress={() => followUser(route.params.userId)}
+                  >
+                    <Text style={styles.followButtonText}>Follow</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
           </View>
 
           <View style={styles.nameContainer}>
@@ -160,7 +229,7 @@ export default function Profile({ route, navigation }) {
         <FlatList
           data={data}
           renderItem={(props) => <RenderItem {...props} />}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           ItemSeparatorComponent={() => <View style={styles.separator}></View>}
           ListHeaderComponent={ProfileHeader}
           refreshing={isRefreshing}
@@ -168,7 +237,9 @@ export default function Profile({ route, navigation }) {
           onEndReached={handleEnd}
           onEndReachedThreshold={0}
           ListFooterComponent={() =>
-            !isScrollEnd && <ActivityIndicator size="large" color="gray" />
+            !isAtEndOfScrolling && (
+              <ActivityIndicator size="large" color="gray" />
+            )
           }
           scrollIndicatorInsets={{ right: 1 }}
         />
