@@ -1,20 +1,26 @@
-import { Entypo, EvilIcons } from "@expo/vector-icons";
-import { format } from "date-fns";
-import React, { useEffect, useState } from "react";
+import { AntDesign, Entypo, EvilIcons } from "@expo/vector-icons";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+
+import { format } from "date-fns";
+import { Platform } from "react-native";
+import { Modalize } from "react-native-modalize";
+import { AuthContext } from "../context/AuthProvider";
 import axiosConfig from "../helpers/axiosConfig";
 
 export default function Tweet({ route, navigation }) {
   const [tweet, setTweet] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const modalizeRef = useRef(null);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     getTweet();
@@ -28,13 +34,48 @@ export default function Tweet({ route, navigation }) {
         setIsLoading(false);
       })
       .catch((error) => {
+        console.log(error);
         setIsLoading(false);
-        console.error(error);
       });
   }
 
+  function deleteTweet() {
+    axiosConfig.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${user.token}`;
+
+    axiosConfig
+      .delete(`/tweets/${route.params.tweetId}`)
+      .then((response) => {
+        Alert.alert("Tweet was deleted.");
+        navigation.navigate("Home1", {
+          tweetDeleted: true,
+        });
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+  }
+
+  function showAlert() {
+    Alert.alert("Delete this tweet?", null, [
+      {
+        text: "Cancel",
+        onPress: () => modalizeRef.current?.close(),
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: () => deleteTweet(),
+        style: "default",
+      },
+    ]);
+  }
+
   function gotoProfile(userId) {
-    navigation.navigate("Profile", { userId });
+    navigation.navigate("Profile Screen", {
+      userId: userId,
+    });
   }
 
   return (
@@ -51,21 +92,19 @@ export default function Tweet({ route, navigation }) {
               <Image
                 style={styles.avatar}
                 source={{
-                  uri: "https://reactnative.dev/img/tiny_logo.png",
+                  uri: tweet.user.avatar,
                 }}
               />
               <View>
-                <Text numberOfLines={1} style={styles.tweetName}>
-                  {tweet.user.name}
-                </Text>
-                <Text numberOfLines={1} style={styles.tweetHandle}>
-                  @{tweet.user.username}
-                </Text>
+                <Text style={styles.tweetName}>{tweet.user.name}</Text>
+                <Text style={styles.tweetHandle}>@{tweet.user.username}</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Entypo name="dots-three-vertical" size={24} color="gray" />
-            </TouchableOpacity>
+            {user.id === tweet.user.id && (
+              <TouchableOpacity onPress={() => modalizeRef.current?.open()}>
+                <Entypo name="dots-three-vertical" size={24} color="gray" />
+              </TouchableOpacity>
+            )}
           </View>
 
           <View style={styles.tweetContentContainer}>
@@ -84,20 +123,22 @@ export default function Tweet({ route, navigation }) {
               </Text>
             </View>
           </View>
+
           <View style={styles.tweetEngagement}>
             <View style={styles.flexRow}>
-              <Text style={styles.tweetEngagementNumber}>333</Text>
+              <Text style={styles.tweetEngagementNumber}>628</Text>
               <Text style={styles.tweetEngagementLabel}>Retweets</Text>
             </View>
             <View style={[styles.flexRow, styles.ml4]}>
-              <Text style={styles.tweetEngagementNumber}>123</Text>
+              <Text style={styles.tweetEngagementNumber}>38</Text>
               <Text style={styles.tweetEngagementLabel}>Quote Tweets</Text>
             </View>
             <View style={[styles.flexRow, styles.ml4]}>
-              <Text style={styles.tweetEngagementNumber}>456</Text>
+              <Text style={styles.tweetEngagementNumber}>2,934</Text>
               <Text style={styles.tweetEngagementLabel}>Likes</Text>
             </View>
           </View>
+
           <View style={[styles.tweetEngagement, styles.spaceAround]}>
             <TouchableOpacity>
               <EvilIcons name="comment" size={32} color="gray" />
@@ -108,16 +149,30 @@ export default function Tweet({ route, navigation }) {
             <TouchableOpacity>
               <EvilIcons name="heart" size={32} color="gray" />
             </TouchableOpacity>
-
             <TouchableOpacity>
               <EvilIcons
                 name={Platform.OS === "ios" ? "share-apple" : "share-google"}
-                size={22}
+                size={32}
                 color="gray"
-                style={{ marginRight: 2 }}
               />
             </TouchableOpacity>
           </View>
+
+          <Modalize ref={modalizeRef} snapPoint={200}>
+            <View style={{ paddingHorizontal: 24, paddingVertical: 32 }}>
+              <TouchableOpacity style={styles.menuButton}>
+                <AntDesign name="pushpino" size={24} color="#222" />
+                <Text style={styles.menuButtonText}>Pin Tweet</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={showAlert}
+                style={[styles.menuButton, styles.mt6]}
+              >
+                <AntDesign name="delete" size={24} color="#222" />
+                <Text style={styles.menuButtonText}>Delete Tweet</Text>
+              </TouchableOpacity>
+            </View>
+          </Modalize>
         </>
       )}
     </View>
@@ -128,9 +183,6 @@ const styles = StyleSheet.create({
   flexRow: {
     flexDirection: "row",
   },
-  linkColor: {
-    color: "#1d9bf1",
-  },
   container: {
     flex: 1,
     backgroundColor: "white",
@@ -138,7 +190,8 @@ const styles = StyleSheet.create({
   profileContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
   },
   avatar: {
     width: 50,
@@ -148,18 +201,17 @@ const styles = StyleSheet.create({
   },
   tweetName: {
     fontWeight: "bold",
-    color: "#222",
+    color: "#222222",
   },
   tweetHandle: {
-    marginTop: 6,
     color: "gray",
+    marginTop: 4,
   },
   tweetContentContainer: {
     paddingHorizontal: 10,
     paddingBottom: 10,
-    borderBottomColor: "#e5e7eb",
     borderBottomWidth: 1,
-    marginTop: 4,
+    borderBottomColor: "#e5e7eb",
   },
   tweetContent: {
     fontSize: 20,
@@ -170,8 +222,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 12,
-    borderBottomColor: "#e5e7eb",
     borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
   },
   tweetEngagementNumber: {
     fontWeight: "bold",
@@ -180,12 +232,6 @@ const styles = StyleSheet.create({
     color: "gray",
     marginLeft: 6,
   },
-  ml4: {
-    marginLeft: 16,
-  },
-  spaceAround: {
-    justifyContent: "space-around",
-  },
   tweetTimestampContainer: {
     flexDirection: "row",
     marginTop: 12,
@@ -193,5 +239,26 @@ const styles = StyleSheet.create({
   tweetTimestampText: {
     color: "gray",
     marginRight: 6,
+  },
+  linkColor: {
+    color: "#1d9bf1",
+  },
+  spaceAround: {
+    justifyContent: "space-around",
+  },
+  ml4: {
+    marginLeft: 16,
+  },
+  mt6: {
+    marginTop: 32,
+  },
+  menuButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  menuButtonText: {
+    fontSize: 20,
+    color: "#222",
+    marginLeft: 12,
   },
 });
